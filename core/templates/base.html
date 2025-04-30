@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Social Media{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Add transition for all color changes */
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        @keyframes smoke {
+            0% { transform: translateY(0) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-20px) scale(1.05); opacity: 0.9; }
+            100% { transform: translateY(0) scale(1); opacity: 0.7; }
+        }
+        @keyframes shine {
+            0% { opacity: 0.7; filter: blur(40px); }
+            50% { opacity: 1; filter: blur(60px); }
+            100% { opacity: 0.7; filter: blur(40px); }
+        }
+        .animate-smoke { animation: smoke 8s ease-in-out infinite; }
+        .animate-shine { animation: shine 6s ease-in-out infinite; }
+        .animate-shine2 { animation: shine 10s ease-in-out infinite alternate; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#7C3AED',
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-white dark:bg-black text-gray-900 dark:text-gray-100">
+    <div class="min-h-full relative overflow-hidden">
+        <nav class="bg-white dark:bg-[#111] border-b border-gray-200 dark:border-[#222] fixed w-full z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="{% url 'core:home' %}" class="flex items-center space-x-2 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                                <img src="{% static 'img/logo.png' %}" alt="SAN-NET Logo" class="h-8 w-8 rounded-md" />
+                                <span>SAN-NET</span>
+                            </a>
+                        </div>
+                        {% if user.is_authenticated and not 'account_' in request.resolver_match.url_name %}
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="{% url 'core:home' %}" class="{% if request.resolver_match.url_name == 'home' %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Home
+                            </a>
+                            <a href="{% url 'core:explore' %}" class="{% if request.resolver_match.url_name == 'explore' %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Explore
+                            </a>
+                            <a href="{% url 'core:notifications' %}" class="{% if request.resolver_match.url_name == 'notifications' %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Notifications
+                            </a>
+                            <a href="{% url 'core:messages' %}" class="{% if request.resolver_match.url_name == 'messages' %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Messages
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center">
+                        {% if user.is_authenticated and not 'account_' in request.resolver_match.url_name %}
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" class="w-64 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search...">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i class="fas fa-search text-gray-400 dark:text-gray-500"></i>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Theme Toggle -->
+                        <button id="theme-toggle" class="ml-4 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                            <i class="fas fa-sun dark:hidden"></i>
+                            <i class="fas fa-moon hidden dark:block"></i>
+                        </button>
+
+                        {% if user.is_authenticated and not 'account_' in request.resolver_match.url_name %}
+                        <!-- Profile Dropdown -->
+                        <div class="ml-4 relative">
+                            <div>
+                                <button type="button" class="flex items-center focus:outline-none" id="user-menu-button">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="h-8 w-8 rounded-full">
+                                    {% else %}
+                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold">
+                                            {{ user.username|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </button>
+                            </div>
+                            <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-[#111] ring-1 ring-black ring-opacity-5" id="user-menu">
+                                <div class="py-1">
+                                    <a href="{% url 'core:profile' user.username %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
+                                    <a href="{% url 'core:settings' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
+                                    <a href="{% url 'account_logout' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Sign out</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif not 'account_' in request.resolver_match.url_name %}
+                        <!-- Auth Links -->
+                        <div class="ml-4 flex items-center space-x-4">
+                            <a href="{% url 'account_login' %}" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Sign In</a>
+                            <a href="{% url 'account_signup' %}" class="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg transition-all duration-200">Sign Up</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="pt-16 bg-white dark:bg-black min-h-screen">
+            <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 rounded-md p-4 {% if message.tags == 'success' %}bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-100{% elif message.tags == 'error' %}bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-100{% else %}bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-100{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="{% if 'account_' in request.resolver_match.url_name %}max-w-md mx-auto{% else %}bg-white dark:bg-[#111] shadow-sm rounded-lg p-6{% endif %}">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        {% if user.is_authenticated and not 'account_' in request.resolver_match.url_name %}
+        // Profile dropdown functionality
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+
+        userMenuButton.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+        {% endif %}
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

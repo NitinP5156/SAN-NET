@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - Social Media{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Settings Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Manage your account preferences and settings</p>
+        </div>
+
+        <!-- Settings Form -->
+        <form method="POST" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Notifications Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-indigo-100 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Notifications</h2>
+                
+                <div class="space-y-4">
+                    <!-- Email Notifications -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label for="email_notifications" class="font-medium text-gray-700 dark:text-gray-300">Email Notifications</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Receive notifications about activity via email</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="email_notifications" id="email_notifications" class="sr-only peer" {% if user.email_notifications %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Push Notifications -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label for="push_notifications" class="font-medium text-gray-700 dark:text-gray-300">Push Notifications</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Receive push notifications in your browser</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="push_notifications" id="push_notifications" class="sr-only peer" {% if user.push_notifications %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-indigo-100 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Privacy</h2>
+                
+                <div class="space-y-4">
+                    <!-- Private Account -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label for="is_private" class="font-medium text-gray-700 dark:text-gray-300">Private Account</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Only approved followers can see your posts</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_private" id="is_private" class="sr-only peer" {% if user.is_private %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Online Status -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label for="show_online_status" class="font-medium text-gray-700 dark:text-gray-300">Show Online Status</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Let others see when you're active</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_online_status" id="show_online_status" class="sr-only peer" {% if user.show_online_status %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-indigo-100 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Appearance</h2>
+                
+                <div class="space-y-4">
+                    <!-- Theme Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="font-medium text-gray-700 dark:text-gray-300">Dark Mode</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Toggle between light and dark theme</p>
+                        </div>
+                        <button
+                            type="button"
+                            id="theme-toggle"
+                            class="px-4 py-2 rounded-xl text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                            onclick="toggleTheme()"
+                        >
+                            <i class="fas fa-sun dark:hidden"></i>
+                            <i class="fas fa-moon hidden dark:inline"></i>
+                            <span class="ml-2 dark:hidden">Light</span>
+                            <span class="ml-2 hidden dark:inline">Dark</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end">
+                <button
+                    type="submit"
+                    class="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl transition-colors duration-200"
+                >
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+        {% if messages %}
+        <div class="mt-6">
+            {% for message in messages %}
+            <div class="p-4 rounded-xl {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleTheme() {
+    fetch("{% url 'core:toggle_theme' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.documentElement.classList.toggle('dark');
+        }
+    });
+}
+</script>
+{% endblock %} 

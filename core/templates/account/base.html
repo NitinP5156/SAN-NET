@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    <!-- Left Panel - Image and Welcome Text -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-blue-800 to-purple-700 p-12 text-white flex-col justify-between">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-4 animate-fade-in">{% block left_panel_title %}{% endblock %}</h1>
+            <p class="text-lg text-gray-200">{% block left_panel_subtitle %}{% endblock %}</p>
+        </div>
+        <div class="relative h-64">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 left-0 w-20 h-20 bg-white/10 rounded-full"></div>
+            <div class="absolute bottom-10 right-10 w-32 h-32 bg-purple-500/20 rounded-full"></div>
+            <div class="absolute top-20 right-20 w-16 h-16 bg-blue-500/20 rounded-full"></div>
+        </div>
+        <div class="text-sm text-gray-300">
+            <p>© 2025 SAN-NET. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- Right Panel - Form Content -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white dark:bg-gray-900">
+        {% block form_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %} 

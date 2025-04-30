@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}'s Profile - Social Media{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Profile Header -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-indigo-100 dark:border-indigo-600/20 mb-8">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                <!-- Profile Picture -->
+                <div class="relative group">
+                    {% if profile_user.profile_picture %}
+                        <img src="{{ profile_user.profile_picture.url }}" alt="{{ profile_user.username }}" 
+                             class="h-32 w-32 rounded-full object-cover ring-4 ring-indigo-500 dark:ring-indigo-400 group-hover:ring-purple-500 dark:group-hover:ring-purple-400 transition-all duration-300">
+                    {% else %}
+                        <div class="h-32 w-32 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 dark:from-indigo-500 dark:to-purple-500 flex items-center justify-center ring-4 ring-indigo-500 dark:ring-indigo-400 group-hover:ring-purple-500 dark:group-hover:ring-purple-400 transition-all duration-300">
+                            <i class="fas fa-user text-4xl text-white"></i>
+                        </div>
+                    {% endif %}
+                    {% if user == profile_user %}
+                        <label class="absolute bottom-0 right-0 bg-white dark:bg-gray-700 rounded-full p-2 shadow-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-600 transition-all duration-200 ring-2 ring-indigo-500 dark:ring-indigo-400">
+                            <i class="fas fa-camera text-indigo-600 dark:text-indigo-300"></i>
+                            <input type="file" class="hidden" accept="image/*" id="profile-picture-input">
+                        </label>
+                    {% endif %}
+                </div>
+
+                <!-- Profile Info -->
+                <div class="flex-1 text-center md:text-left">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
+                        <div>
+                            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-400 dark:to-purple-400">
+                                {{ profile_user.username }}
+                            </h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">{{ profile_user.email }}</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            {% if user == profile_user %}
+                                <a href="{% url 'core:edit_profile' username=profile_user.username %}" 
+                                   class="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 dark:from-indigo-400 dark:to-purple-400 dark:hover:from-indigo-500 dark:hover:to-purple-500 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                                </a>
+                            {% else %}
+                                <button class="follow-btn px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 dark:from-indigo-400 dark:to-purple-400 dark:hover:from-indigo-500 dark:hover:to-purple-500 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                                        data-username="{{ profile_user.username }}">
+                                    {% if is_following %}
+                                        <i class="fas fa-user-minus mr-2"></i> Unfollow
+                                    {% else %}
+                                        <i class="fas fa-user-plus mr-2"></i> Follow
+                                    {% endif %}
+                                </button>
+                                <button class="message-btn p-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-600/50 text-gray-700 dark:text-gray-300 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                                        data-user-id="{{ profile_user.id }}">
+                                    <i class="fas fa-envelope text-xl"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-4 mt-8">
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 transform hover:scale-105 transition-all duration-200">
+                            <span class="block text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ profile_user.posts.count }}</span>
+                            <span class="text-gray-600 dark:text-gray-400">Posts</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 transform hover:scale-105 transition-all duration-200">
+                            <span class="block text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ profile_user.followers.count }}</span>
+                            <span class="text-gray-600 dark:text-gray-400">Followers</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 transform hover:scale-105 transition-all duration-200">
+                            <span class="block text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ profile_user.following.count }}</span>
+                            <span class="text-gray-600 dark:text-gray-400">Following</span>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    {% if profile_user.bio %}
+                        <div class="mt-8 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">About</h2>
+                            <p class="text-gray-600 dark:text-gray-300">{{ profile_user.bio }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-indigo-100 dark:border-indigo-600/20">
+            <div class="border-b border-gray-200 dark:border-gray-700">
+                <nav class="flex space-x-8" aria-label="Tabs">
+                    <button class="tab-button active px-4 py-3 text-sm font-medium rounded-t-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-tab="posts">
+                        <i class="fas fa-th-large mr-2"></i> Posts
+                    </button>
+                    <button class="tab-button px-4 py-3 text-sm font-medium rounded-t-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-tab="saved">
+                        <i class="fas fa-bookmark mr-2"></i> Saved
+                    </button>
+                    <button class="tab-button px-4 py-3 text-sm font-medium rounded-t-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-tab="liked">
+                        <i class="fas fa-heart mr-2"></i> Liked
+                    </button>
+                    {% if user == profile_user %}
+                        <button class="tab-button px-4 py-3 text-sm font-medium rounded-t-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-tab="drafts">
+                            <i class="fas fa-file-alt mr-2"></i> Drafts
+                        </button>
+                    {% endif %}
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="mt-6">
+                <!-- Posts Tab -->
+                <div id="posts" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for post in posts %}
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" alt="Post image" class="w-full h-48 object-cover">
+                                {% endif %}
+                                <div class="p-4">
+                                    <p class="text-gray-800 dark:text-gray-200 line-clamp-3">{{ post.content }}</p>
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <button class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200">
+                                                <i class="fas fa-heart"></i>
+                                                <span class="ml-1">{{ post.likes.count }}</span>
+                                            </button>
+                                            <button class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200">
+                                                <i class="fas fa-comment"></i>
+                                                <span class="ml-1">{{ post.comments.count }}</span>
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ post.created_at|timesince }} ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-span-full flex flex-col items-center justify-center py-12">
+                                <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-camera text-4xl text-gray-400 dark:text-gray-500"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Posts Yet</h3>
+                                <p class="text-gray-500 dark:text-gray-400">Share your first post with the world!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Saved Posts -->
+                <div id="saved" class="tab-content hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for post in saved_posts %}
+                            <div class="post-card hover-lift">
+                                {% if post.image %}
+                                    <div class="aspect-w-1 aspect-h-1">
+                                        <img src="{{ post.image.url }}" alt="Post image" class="object-cover">
+                                    </div>
+                                {% endif %}
+                                <div class="p-4">
+                                    <p class="text-gray-900 line-clamp-2">{{ post.content }}</p>
+                                    <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+                                        <span>{{ post.likes.count }} likes</span>
+                                        <span>{{ post.comments.count }} comments</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="empty-state col-span-full">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-bookmark"></i>
+                                </div>
+                                <h3 class="empty-state-title">No saved posts</h3>
+                                <p class="empty-state-text">Save posts to view them here</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Liked Posts -->
+                <div id="liked" class="tab-content hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for post in liked_posts %}
+                            <div class="post-card hover-lift">
+                                {% if post.image %}
+                                    <div class="aspect-w-1 aspect-h-1">
+                                        <img src="{{ post.image.url }}" alt="Post image" class="object-cover">
+                                    </div>
+                                {% endif %}
+                                <div class="p-4">
+                                    <p class="text-gray-900 line-clamp-2">{{ post.content }}</p>
+                                    <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+                                        <span>{{ post.likes.count }} likes</span>
+                                        <span>{{ post.comments.count }} comments</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="empty-state col-span-full">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <h3 class="empty-state-title">No liked posts</h3>
+                                <p class="empty-state-text">Like posts to view them here</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Drafts -->
+                {% if user == profile_user %}
+                    <div id="drafts" class="tab-content hidden">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {% for draft in drafts %}
+                                <div class="post-card hover-lift">
+                                    {% if draft.image %}
+                                        <div class="aspect-w-1 aspect-h-1">
+                                            <img src="{{ draft.image.url }}" alt="Draft image" class="object-cover">
+                                        </div>
+                                    {% endif %}
+                                    <div class="p-4">
+                                        <p class="text-gray-900 line-clamp-2">{{ draft.content }}</p>
+                                        <div class="mt-4 flex items-center justify-between">
+                                            <span class="text-sm text-gray-500">Last edited {{ draft.updated_at|timesince }} ago</span>
+                                            <div class="flex space-x-2">
+                                                <button class="draft-action" onclick="editDraft({{ draft.id }})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="draft-action" onclick="publishDraft({{ draft.id }})">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </button>
+                                                <button class="draft-action" onclick="deleteDraft({{ draft.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="empty-state col-span-full">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <h3 class="empty-state-title">No drafts</h3>
+                                    <p class="empty-state-text">Save posts as drafts to view them here</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% csrf_token %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture upload
+    const profilePictureInput = document.getElementById('profile-picture-input');
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const formData = new FormData();
+                formData.append('profile_picture', this.files[0]);
+                
+                fetch(`/profile/update-picture/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to update profile picture');
+                    }
+                });
+            }
+        });
+    }
+
+    // Tab switching with smooth transitions
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.dataset.tab;
+            
+            // Remove active classes
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600', 'dark:border-indigo-400');
+                btn.classList.add('text-gray-500', 'dark:text-gray-400', 'border-transparent');
+            });
+            
+            // Add active classes
+            button.classList.add('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-b-2', 'border-indigo-600', 'dark:border-indigo-400');
+            button.classList.remove('text-gray-500', 'dark:text-gray-400', 'border-transparent');
+            
+            // Hide all tab contents with fade
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in');
+            });
+            
+            // Show selected tab content with fade
+            const selectedTab = document.getElementById(tabId);
+            selectedTab.classList.remove('hidden');
+            setTimeout(() => {
+                selectedTab.classList.add('fade-in');
+            }, 50);
+        });
+    });
+
+    // Follow/Unfollow functionality with animation
+    const followBtn = document.querySelector('.follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const username = this.dataset.username;
+            const isFollowing = this.innerHTML.includes('Unfollow');
+            const endpoint = isFollowing ? '/unfollow/' : '/follow/';
+            
+            this.classList.add('animate-pulse');
+            
+            fetch(`${endpoint}${username}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.classList.remove('animate-pulse');
+                if (data.success) {
+                    this.innerHTML = data.is_following ? 
+                        '<i class="fas fa-user-minus mr-2"></i> Unfollow' : 
+                        '<i class="fas fa-user-plus mr-2"></i> Follow';
+                    
+                    // Update followers count with animation
+                    const followersCount = document.querySelector('.text-2xl.font-bold:nth-child(1)');
+                    if (followersCount) {
+                        followersCount.classList.add('scale-110', 'text-purple-500');
+                        followersCount.textContent = data.followers_count;
+                        setTimeout(() => {
+                            followersCount.classList.remove('scale-110', 'text-purple-500');
+                        }, 300);
+                    }
+                }
+            });
+        });
+    }
+
+    // Message button
+    const messageButton = document.querySelector('.message-btn');
+    if (messageButton) {
+        messageButton.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            window.location.href = `/messages/${userId}/`;
+        });
+    }
+});
+</script>
+
+<style>
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-button.active {
+    position: relative;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #6366f1, #a855f7);
+}
+
+.hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Post by {{ post.author.username }} - Social Media{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{% url 'core:profile' post.author.username %}" class="text-decoration-none">
+                        {% if post.author.profile_picture %}
+                            <img src="{{ post.author.profile_picture.url }}" alt="{{ post.author.username }}" class="rounded-circle" width="32" height="32">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-2x"></i>
+                        {% endif %}
+                        <span class="ms-2">{{ post.author.username }}</span>
+                    </a>
+                </div>
+                <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+            </div>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="card-img-top" alt="Post image">
+            {% endif %}
+            <div class="card-body">
+                <p class="card-text">{{ post.content }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary like-btn" data-post-id="{{ post.id }}">
+                            <i class="fas fa-heart {% if user in post.likes.all %}text-danger{% endif %}"></i>
+                            <span class="likes-count">{{ post.likes.count }}</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                            <i class="fas fa-comment"></i> {{ post.comments.count }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Comments</h5>
+            </div>
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'core:add_comment' post.id %}" method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="2" placeholder="Write a comment..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Comment</button>
+                    </form>
+                {% endif %}
+
+                {% for comment in comments %}
+                    <div class="d-flex mb-3">
+                        {% if comment.author.profile_picture %}
+                            <img src="{{ comment.author.profile_picture.url }}" alt="{{ comment.author.username }}" class="rounded-circle me-3" width="40" height="40">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-2x me-3"></i>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="bg-light rounded p-2">
+                                <a href="{% url 'core:profile' comment.author.username %}" class="text-decoration-none fw-bold">
+                                    {{ comment.author.username }}
+                                </a>
+                                <p class="mb-0">{{ comment.content }}</p>
+                            </div>
+                            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No comments yet. Be the first to comment!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.like-btn').click(function() {
+        const postId = $(this).data('post-id');
+        const button = $(this);
+        const likesCount = button.find('.likes-count');
+        const heartIcon = button.find('.fa-heart');
+        
+        $.ajax({
+            url: `/post/${postId}/like/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            success: function(response) {
+                likesCount.text(response.likes_count);
+                if (response.is_liked) {
+                    heartIcon.addClass('text-danger');
+                } else {
+                    heartIcon.removeClass('text-danger');
+                }
+            }
+        });
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - Social Media{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h1>
+            <a href="{% url 'core:profile' user.username %}" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="fas fa-times text-xl"></i>
+            </a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Profile Picture -->
+            <div class="flex items-center space-x-6">
+                <div class="relative">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile picture" class="h-24 w-24 rounded-full object-cover border-4 border-indigo-500">
+                    {% else %}
+                        <div class="h-24 w-24 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center border-4 border-indigo-500">
+                            <i class="fas fa-user text-3xl text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                    {% endif %}
+                    <label class="absolute bottom-0 right-0 bg-white dark:bg-gray-700 rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200">
+                        <i class="fas fa-camera text-gray-600 dark:text-gray-300"></i>
+                        <input type="file" name="profile_picture" class="hidden" accept="image/*" id="profile-picture-input">
+                    </label>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ user.username }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Change profile picture</p>
+                </div>
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bio</label>
+                <textarea name="bio" id="bio" rows="4" class="form-input" placeholder="Tell us about yourself">{{ user.bio }}</textarea>
+            </div>
+
+            <!-- Location -->
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
+                <input type="text" name="location" id="location" value="{{ user.location }}" class="form-input" placeholder="Where are you based?">
+            </div>
+
+            <!-- Website -->
+            <div>
+                <label for="website" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Website</label>
+                <input type="url" name="website" id="website" value="{{ user.website }}" class="form-input" placeholder="https://your-website.com">
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Privacy Settings</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Private Account</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Only followers can see your posts</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_private" class="sr-only peer" {% if user.is_private %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Show Online Status</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Let others see when you're online</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_online_status" class="sr-only peer" {% if user.show_online_status %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Notification Settings</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email Notifications</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Receive notifications via email</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="email_notifications" class="sr-only peer" {% if user.email_notifications %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Push Notifications</label>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Receive push notifications</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="push_notifications" class="sr-only peer" {% if user.push_notifications %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end space-x-4 pt-6">
+                <a href="{% url 'core:profile' user.username %}" class="btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const profilePictureInput = document.getElementById('profile-picture-input');
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.querySelector('.rounded-full');
+                    if (img.tagName === 'IMG') {
+                        img.src = e.target.result;
+                    } else {
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.alt = 'Profile picture';
+                        newImg.className = 'h-24 w-24 rounded-full object-cover border-4 border-indigo-500';
+                        img.parentNode.replaceChild(newImg, img);
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

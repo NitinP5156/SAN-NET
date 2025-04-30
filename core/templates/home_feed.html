@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home Feed - Social Media{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Left Sidebar -->
+        <div class="lg:col-span-3">
+            <div class="sticky top-20">
+                <!-- User Profile Card -->
+                {% if user.is_authenticated %}
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+                        <div class="flex items-center space-x-4">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="h-16 w-16 rounded-full object-cover border-4 border-indigo-500">
+                            {% else %}
+                                <div class="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center border-4 border-indigo-500">
+                                    <i class="fas fa-user text-2xl text-indigo-600 dark:text-indigo-400"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ user.username }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ user.posts.count }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Posts</p>
+                            </div>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ user.followers.count }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Followers</p>
+                            </div>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ user.following.count }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Following</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Trending Topics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trending Topics</h3>
+                    <div class="space-y-3">
+                        {% for topic in trending_topics %}
+                            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-hashtag text-indigo-500"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ topic.name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ topic.post_count }} posts</p>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Suggested Users -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Suggested Users</h3>
+                    <div class="space-y-4">
+                        {% for user in suggested_users %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="h-10 w-10 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                            <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.username }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.followers.count }} followers</p>
+                                    </div>
+                                </div>
+                                <button class="btn-secondary text-sm">Follow</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-6">
+            {% if user.is_authenticated %}
+                <!-- Create Post Form -->
+                <div class="post-card mb-8">
+                    <div class="p-6">
+                        <form action="{% url 'core:create_post' %}" method="post" enctype="multipart/form-data" data-ajax="true" class="space-y-4">
+                            {% csrf_token %}
+                            <div class="flex items-start space-x-4">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="post-author-avatar">
+                                {% else %}
+                                    <div class="post-author-avatar bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                        <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="flex-1">
+                                    <textarea name="content" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" rows="3" placeholder="What's on your mind?" required></textarea>
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <label class="action-button cursor-pointer">
+                                                <i class="fas fa-image"></i>
+                                                <input type="file" name="image" class="hidden" accept="image/*">
+                                            </label>
+                                            <label class="action-button cursor-pointer">
+                                                <i class="fas fa-video"></i>
+                                                <input type="file" name="video" class="hidden" accept="video/*">
+                                            </label>
+                                            <img id="image-preview" class="hidden h-20 w-20 object-cover rounded-xl" alt="Preview">
+                                        </div>
+                                        <button type="submit" class="btn-primary">
+                                            <i class="fas fa-paper-plane mr-2"></i> Post
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Posts Container -->
+            <div class="space-y-6">
+                {% for post in posts %}
+                    <div class="post-card">
+                        <!-- Post Header -->
+                        <div class="post-header">
+                            <div class="post-author">
+                                <a href="{% url 'core:profile' post.author.username %}" class="flex items-center space-x-3">
+                                    {% if post.author.profile_picture %}
+                                        <img src="{{ post.author.profile_picture.url }}" alt="{{ post.author.username }}" class="post-author-avatar">
+                                    {% else %}
+                                        <div class="post-author-avatar bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                            <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="post-author-info">
+                                        <h3 class="post-author-name">{{ post.author.username }}</h3>
+                                        <p class="post-time">{{ post.created_at|timesince }} ago</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Post Content -->
+                        <div class="post-content">
+                            {% if post.image %}
+                                <div class="post-image-container">
+                                    <img src="{{ post.image.url }}" class="post-image" alt="Post image">
+                                </div>
+                            {% endif %}
+                            {% if post.video %}
+                                <div class="post-video-container">
+                                    <video src="{{ post.video.url }}" class="w-full rounded-xl" controls></video>
+                                </div>
+                            {% endif %}
+                            <p class="post-text">{{ post.content }}</p>
+                        </div>
+
+                        <!-- Post Actions -->
+                        <div class="post-actions">
+                            <div class="post-actions-grid">
+                                <button class="action-button like-btn" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-heart {% if user in post.likes.all %}text-red-500{% endif %}"></i>
+                                    <span class="action-count likes-count">{{ post.likes.count }}</span>
+                                </button>
+                                <a href="{% url 'core:post_detail' post.id %}" class="action-button">
+                                    <i class="fas fa-comment"></i>
+                                    <span class="action-count">{{ post.comments.count }}</span>
+                                </a>
+                                <button class="action-button">
+                                    <i class="fas fa-share"></i>
+                                    <span class="action-count">Share</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Comment Section -->
+                        <div class="comment-section">
+                            <div class="comment-input">
+                                <input type="text" placeholder="Add a comment..." class="comment-input-field">
+                                <button class="comment-submit">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="comments-list">
+                                {% for comment in post.comments.all|slice:":3" %}
+                                    <div class="comment">
+                                        <a href="{% url 'core:profile' comment.author.username %}">
+                                            {% if comment.author.profile_picture %}
+                                                <img src="{{ comment.author.profile_picture.url }}" alt="{{ comment.author.username }}" class="comment-avatar">
+                                            {% else %}
+                                                <div class="comment-avatar bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                                    <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                        <div class="comment-content">
+                                            <a href="{% url 'core:profile' comment.author.username %}" class="comment-author">{{ comment.author.username }}</a>
+                                            <p class="comment-text">{{ comment.content }}</p>
+                                            <p class="comment-time">{{ comment.created_at|timesince }} ago</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-12">
+                        <div class="text-gray-400 dark:text-gray-500 mb-4">
+                            <i class="fas fa-newspaper text-4xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">No posts yet</h3>
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Be the first to share something!</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if posts.has_next %}
+                <div class="load-more-trigger text-center py-8">
+                    <div class="loading-spinner"></div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="lg:col-span-3">
+            <div class="sticky top-20">
+                <!-- Stories -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Stories</h3>
+                    <div class="flex space-x-4 overflow-x-auto pb-4">
+                        {% for story in stories %}
+                            <div class="flex-shrink-0">
+                                <div class="relative">
+                                    <div class="h-16 w-16 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-1">
+                                        <img src="{{ story.user.profile_picture.url }}" alt="{{ story.user.username }}" class="h-full w-full rounded-full object-cover">
+                                    </div>
+                                    <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 dark:text-gray-300">{{ story.user.username }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Trending Posts -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trending Posts</h3>
+                    <div class="space-y-4">
+                        {% for post in trending_posts %}
+                            <a href="{% url 'core:post_detail' post.id %}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" alt="Post thumbnail" class="h-16 w-16 rounded-lg object-cover">
+                                {% else %}
+                                    <div class="h-16 w-16 rounded-lg bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                        <i class="fas fa-image text-indigo-600 dark:text-indigo-400"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{{ post.content }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ post.likes.count }} likes</p>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview
+    const imageInput = document.querySelector('input[type="file"]');
+    const imagePreview = document.getElementById('image-preview');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    // Mobile menu toggle
+    const mobileMenuButton = document.querySelector('[aria-controls="mobile-menu"]');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    // Infinite scroll
+    const loadMoreTrigger = document.querySelector('.load-more-trigger');
+    if (loadMoreTrigger) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    loadMorePosts();
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        observer.observe(loadMoreTrigger);
+    }
+});
+
+function loadMorePosts() {
+    const currentUrl = new URL(window.location.href);
+    const currentPage = parseInt(currentUrl.searchParams.get('page') || '1');
+    const nextPage = currentPage + 1;
+    
+    fetch(`${currentUrl.pathname}?page=${nextPage}`)
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newPosts = doc.querySelectorAll('.post-card');
+            
+            if (newPosts.length > 0) {
+                const postsContainer = document.querySelector('.space-y-6');
+                newPosts.forEach(post => {
+                    postsContainer.appendChild(post);
+                });
+                
+                // Update URL without reload
+                currentUrl.searchParams.set('page', nextPage);
+                window.history.pushState({}, '', currentUrl);
+            }
+        });
+}
+</script>
+{% endblock %} 

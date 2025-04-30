@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Post - Social Media{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Create Post Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-indigo-100 dark:border-gray-700">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create Post</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Share your thoughts with the world</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- User Info -->
+                <div class="flex items-center space-x-4 mb-6">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile" class="h-12 w-12 rounded-full object-cover border-2 border-indigo-500">
+                    {% else %}
+                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 flex items-center justify-center">
+                            <i class="fas fa-user text-xl text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <div class="font-semibold text-gray-900 dark:text-white">{{ user.username }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Posting to your feed</div>
+                    </div>
+                </div>
+
+                <!-- Content Input -->
+                <div>
+                    <label for="content" class="sr-only">Post content</label>
+                    <textarea
+                        id="content"
+                        name="content"
+                        rows="4"
+                        class="block w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white resize-none"
+                        placeholder="What's on your mind?"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="relative">
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        class="hidden"
+                        onchange="previewImage(event)"
+                    >
+                    <label
+                        for="image"
+                        class="cursor-pointer flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                    >
+                        <i class="fas fa-image mr-2"></i>
+                        Add Photo
+                    </label>
+                    
+                    <!-- Image Preview -->
+                    <div id="image-preview" class="hidden mt-4 relative">
+                        <img id="preview" src="" alt="Preview" class="max-h-96 rounded-xl object-cover">
+                        <button
+                            type="button"
+                            onclick="removeImage()"
+                            class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors duration-200"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <a
+                        href="{% url 'core:home' %}"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors duration-200"
+                    >
+                        Cancel
+                    </a>
+                    <button
+                        type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl transition-colors duration-200"
+                    >
+                        Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview').src = e.target.result;
+            document.getElementById('image-preview').classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeImage() {
+    document.getElementById('image').value = '';
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('preview').src = '';
+}
+
+// Add form submission handling
+document.querySelector('form').addEventListener('submit', function(e) {
+    const submitButton = this.querySelector('button[type="submit"]');
+    const content = document.getElementById('content').value.trim();
+    
+    if (!content) {
+        e.preventDefault();
+        alert('Please enter some content for your post.');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Posting...';
+});
+</script>
+{% endblock %} 
