@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SAN-NET
 
 A modern social media web application built with Django.
@@ -60,3 +61,6 @@ A modern social media web application built with Django.
 ## License
 
 MIT License 
+=======
+# SAN-NET
+>>>>>>> 77b300dce1fb83e9aa6577c51628713d63c1ef07
